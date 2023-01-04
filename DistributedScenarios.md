@@ -7,7 +7,6 @@ Main work items:
 - Create Activity object:
 
     SDK will generate Activity object with schema attributes everytime a network call is made. This activity object generates TraceId and SpanId.
-    Compute gateway team would listen to this event(activity object) and extract these fields and save it in Geneva.
 
 - Context propagation
 
