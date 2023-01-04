@@ -1,6 +1,4 @@
 ## **Cosmos DB SDK Distributed Tracing**
-
-<img width="478" alt="image" src="https://user-images.githubusercontent.com/113193425/210616406-c8a4e677-9b40-4fd6-ace8-71773d8ef04e.png">
 Main work items:
 
 
