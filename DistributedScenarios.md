@@ -40,7 +40,8 @@ Main work items:
         - Batch and bulk operations
 
 - **EnableDistributedTracing Flag : True and Gateway Mode**
-      - Scenario 1:
+
+    - Scenario 1:
         - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): True --> **Activity Parent Trace id**
         - Client listener for Network Level Activity(Azure.Cosmos.Request): True --> **parentTraceId-spanId**
         - DiagnosticsString: **Includes just parent traceID**
