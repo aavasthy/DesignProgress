@@ -35,6 +35,64 @@ Present it to the Monitoring team and SDK team.
     - Cleanup: Using Diagnostic Factory from Direct package in V3- **NEW**
         - This is independent from feature objective but we need to maintain copied Azure Core diagnostic code only in one place. Therefore, remove Azure Core Diagnostic code from V3 and using Direct Package reference.
 
+## **Different scenarios:**
+
+
+- **EnableDistributedTracing Flag : True and Direct Mode**
+    - Scenario 1:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): True --> **Activity Parent Trace id**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): True --> **parentTraceId-spanId**
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **parentTraceId-spanId**
+    - Scenario 2:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): False --> **Create a dummy activity with ParentTraceId**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): True --> **Parent TraceId-SpanId created for each request**
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **parent traceID-SpanId created for each request**
+    - Scenario 3:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): True --> **Activity Parent Trace id**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): False --> No new activity created at network level
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **Checks if there is an existing Activity.Current.id then sets that and this way each network request has same ParentTraceId-SpanId combination**
+    - Scenario 4:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): False --> **Create a dummy activity with ParentTraceId**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): False --> **No Activity**
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **Checks if there is an existing Activity.Current.id then sets that and this way each network request has same ParentTraceId-SpanId combination**
+    - Scenario 5:
+        - Batch and bulk operations
+
+- **EnableDistributedTracing Flag : True and Gateway Mode**
+
+    - Scenario 1:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): True --> **Activity Parent Trace id**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): True --> **parentTraceId-spanId**
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **parentTraceId-spanId**
+    - Scenario 2:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): False --> **Create a dummy activity with ParentTraceId**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): True --> **Parent TraceId-SpanId created for each request**
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **parent traceID-SpanId created for each request**
+    - Scenario 3: (Still needs to be tested)
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): True --> **Activity Parent Trace id**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): False --> No new activity created at network level
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **Checks if there is an existing Activity.Current.id then sets that and this way each network request has same ParentTraceId-SpanId combination**
+    - Scenario 4:
+        - Client Listener for Operation Level Activity(Azure.Cosmos.Operation): False --> **Create a dummy activity with ParentTraceId**
+        - Client listener for Network Level Activity(Azure.Cosmos.Request): False --> **No Activity**
+        - DiagnosticsString: **Includes just parent traceID**
+        - TraceParentHeader: **Checks if there is an existing Activity.Current.id then sets that and this way each network request has same ParentTraceId-SpanId combination**
+     - Scenario 5:
+        - Batch and bulk operations
+
+- **EnableDistributedTracing Flag : False and Gateway/Direct Mode**
+    - Currently we just have EnableDistributedTracing feature flag for controlling operation level activity creation.
+    - For HTTP even if the EnableDistributedTracing flag is off HTTP request would have traceparent headers because that is something internally controlled by httpclient.
+    - For TCP, if flag is off at operation level then again a flag check is needed in transportclient to stop request level activities to generate. Should we pass EnableDistributedTracing flag value all the way to TransportClient or just keep this behavior consistent to http?
+
+
 
 - #### **Monitoring team**
     #### Feature: Enabling Distributed Tracing across components within Cosmos DB Service
